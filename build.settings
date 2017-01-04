@@ -43,5 +43,5 @@ settings =
         },
     },
 	plugins = {
-        ['plugin.screenRecorder'] = {publisherId = 'tech.scotth'},
+        ['plugin.screenRecorder'] = {publisherId = 'tech.scotth'}},
 }
