@@ -4,12 +4,17 @@ local recordSwitch = 0
 local someLoopingMusic = audio.loadStream( "sampleMusic.mp3" )
 local apiLevel = system.getInfo('androidApiLevel')
 local platform = system.getInfo('platform')
+local isRecording = false
+local myText2 
 if platform == 'android' then
     if apiLevel >= 21 then
         print('Api level 21 (android 5.0) required for screen recording')
         screenRecorder = require( "plugin.screenRecorder" )
     end
+else 
+    screenRecorder = require( "plugin.screenRecorder" )
 end
+
 -- Play the background music on channel 1, loop infinitely, and fade in over 5 seconds
 local someLoopingMusicChannel = audio.play( someLoopingMusic, { channel=1, loops=-1 } )
 myText:addEventListener( "touch", function(e)
@@ -25,9 +30,14 @@ myText:addEventListener( "touch", function(e)
                             end )
                         elseif(ev.response == "recording started") then
                             myText.text = "Stop Recording"
+                            myText2.alpha = 0
+                            isRecording = true
                             recordSwitch = (recordSwitch+1)%2
                         elseif(ev.response == "recording stopped") then
+                            isRecording = false
                             myText.text = "Record"
+                            myText2.alpha = 1
+                            recordSwitch = (recordSwitch+1)%2
                         end
                     end, true)
                 else
@@ -38,20 +48,25 @@ myText:addEventListener( "touch", function(e)
                     print(ev.response)
                     if (ev.response== "permission denied(Record Display)") then
                         myText.text = "Permission Denied"
+
                         timer.performWithDelay( 2000, function (  )
                             myText.text = "Record"
                         end )
                     elseif(ev.response == "recording started") then
+                        isRecording = true
                         myText.text = "Stop Recording"
+                        myText2.alpha = 0
                         recordSwitch = (recordSwitch+1)%2
                     elseif(ev.response == "recording stopped") then
+                        isRecording = false
                         myText.text = "Record"
+                        myText2.alpha = 1
+                        recordSwitch = (recordSwitch+1)%2
                     end
                 end, true)
             end
             
         else
-            recordSwitch = (recordSwitch+1)%2
             if platform == 'android' then
                 if apiLevel >= 21 then
                     screenRecorder.stopRecording()
@@ -64,25 +79,29 @@ myText:addEventListener( "touch", function(e)
         end
     end
 end)
-local myText2 = display.newText("Play Video", display.contentCenterX, display.contentCenterY+30, native.systemFont, 20)
+myText2 = display.newText("Play Video", display.contentCenterX, display.contentCenterY+30, native.systemFont, 20)
 myText2:addEventListener( "touch", function(e)
     if (e.phase =="ended")then
         audio.pause( someLoopingMusicChannel )
         media.playVideo( "screenCapture.mp4", system.TemporaryDirectory, true, function (  )
-            audio.resume( someLoopingMusicChannel )
-        end )
+                audio.resume( someLoopingMusicChannel )
+            end )
     end
 end)
 local function onSystemEvent( event )
     if (event.type == "applicationSuspend") then
         if platform == 'android' then
             if apiLevel >= 21 then
-                screenRecorder.stopRecording()
+                if (isRecording == true) then
+                   screenRecorder.stopRecording() 
+                end
             else
                 print('Api level 21 (android 5.0) required for screen recording')
             end
         else
-            screenRecorder.stopRecording()
+            if (isRecording == true) then
+                screenRecorder.stopRecording() 
+            end
         end
    end
 end
