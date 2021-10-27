@@ -35,13 +35,14 @@ settings =
 		},
 	},
 	android =
-    {
-        usesPermissions =
-        {
-        	"android.permission.CAPTURE_VIDEO_OUTPUT",
-            "android.permission.RECORD_AUDIO",
-        },
-    },
+	    {
+		usesPermissions =
+		{
+			"android.permission.CAPTURE_VIDEO_OUTPUT",
+			"android.permission.RECORD_AUDIO",
+			"android.permission.FOREGROUND_SERVICE",
+		},
+	    },
 	plugins = {
         ['plugin.screenRecorder'] = {publisherId = 'tech.scotth', marketplaceId="insert id here"}},
 }
